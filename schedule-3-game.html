@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule III — Yes or No?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F7F5; --ink:#12312B; --teal:#1E6B5C; --teal-soft:#E4EFEA;
+    --amber:#C0813A; --amber-soft:#F3E7D3; --caution:#A63D28; --caution-soft:#F5E1DC;
+    --good:#2E7D5B; --good-soft:#DDF0E6;
+    --line:#CFDBD5; --white:#FFFFFF; --muted:#5c726b;
+    --display:"Space Grotesk",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  body{font-family:var(--body);color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:540px;margin:0 auto;padding:clamp(18px,4vw,32px) clamp(14px,4vw,26px) 48px;min-height:100vh;display:flex;flex-direction:column}
+
+  .rx-tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:2px;background:var(--white);align-self:flex-start}
+  .rx-tag::before{content:"℞";font-size:14px;color:var(--amber)}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(2rem,6vw,2.7rem);line-height:1;letter-spacing:-.02em;margin:14px 0 8px}
+  .screen{flex:1;display:flex;flex-direction:column}
+  .hidden{display:none!important}
+  .lede{color:#2c463f;font-size:1.05rem;max-width:44ch;margin-bottom:20px}
+
+  .profile{border:1px solid var(--line);border-radius:6px;background:var(--white);margin-bottom:16px;overflow:hidden}
+  .profile .hd{background:var(--amber);color:var(--white);padding:12px 16px;font-family:var(--display);font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:10px}
+  .profile .hd .rn{font-size:1.3rem}
+  .profile .bd{padding:14px 16px;font-size:.92rem}
+  .profile .bd b{color:var(--teal)}
+  .profile .bd .row{margin-bottom:7px}
+  .profile .bd .row:last-child{margin-bottom:0}
+  .mnemonic{font-family:var(--mono);font-size:.84rem;color:var(--muted);margin-bottom:22px;line-height:1.8}
+  .mnemonic b{color:var(--ink)}
+
+  .btn-primary{font-family:var(--display);font-weight:600;font-size:1.1rem;background:var(--ink);color:var(--white);border:none;border-radius:5px;padding:16px;cursor:pointer;transition:background .15s;width:100%}
+  .btn-primary:hover{background:var(--teal)}
+  .btn-primary:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  .hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .stat{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
+  .stat b{display:block;font-family:var(--display);font-weight:700;font-size:1.4rem;color:var(--ink);line-height:1}
+  .stat.streak b{color:var(--amber)}
+  .dots{display:flex;gap:4px;margin-bottom:18px}
+  .dot{height:5px;flex:1;background:var(--white);border:1px solid var(--line);border-radius:3px}
+  .dot.done{background:var(--teal);border-color:var(--teal)}
+  .dot.miss{background:var(--caution);border-color:var(--caution)}
+
+  .prompt{background:var(--white);border:1px solid var(--line);border-radius:8px;padding:36px 22px;text-align:center;margin-bottom:16px;box-shadow:0 2px 0 var(--line)}
+  .prompt .ask{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .prompt .drug{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,6vw,2.5rem);line-height:1.05;letter-spacing:-.01em}
+  .prompt .brand{display:block;font-family:var(--body);font-weight:400;font-size:1rem;color:var(--muted);margin-top:8px}
+
+  .yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .yn button{font-family:var(--display);font-weight:700;font-size:1.1rem;border:1px solid var(--line);border-radius:8px;padding:20px 12px;cursor:pointer;transition:all .12s;background:var(--white)}
+  .yn button:hover{transform:translateY(-1px)}
+  .yn button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .yn .yes{color:var(--good);border-color:#a9d3bf}
+  .yn .no{color:var(--caution);border-color:#e0b9af}
+  .yn .yes:hover{background:var(--good-soft)}
+  .yn .no:hover{background:var(--caution-soft)}
+  .yn button small{display:block;font-family:var(--mono);font-weight:400;font-size:.7rem;color:var(--muted);margin-top:4px;letter-spacing:.03em}
+  .yn.locked button{pointer-events:none}
+  .yn button.pick-right{background:var(--good-soft);border-color:var(--good)}
+  .yn button.pick-wrong{background:var(--caution-soft);border-color:var(--caution)}
+
+  .feedback{margin-top:16px;border-radius:6px;padding:16px 18px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--good-soft);border:1px solid var(--good)}
+  .feedback.nope{background:var(--caution-soft);border:1px solid var(--caution)}
+  .feedback .verdict{font-family:var(--display);font-weight:700;font-size:1.05rem;margin-bottom:5px}
+  .feedback.right .verdict{color:var(--good)} .feedback.nope .verdict{color:var(--caution)}
+  .feedback .why{color:var(--ink);font-size:.95rem}
+  .feedback .why b{color:var(--teal)}
+  .next-btn{margin-top:14px;font-family:var(--mono);font-size:14px;background:var(--amber);color:var(--white);border:none;border-radius:5px;padding:13px 20px;cursor:pointer;width:100%;transition:filter .15s}
+  .next-btn:hover{filter:brightness(1.08)}
+  .next-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .result{text-align:center;padding-top:10px}
+  .grade{font-family:var(--display);font-weight:700;font-size:clamp(3rem,14vw,5rem);color:var(--teal);line-height:1}
+  .score-line{font-family:var(--mono);font-size:.95rem;color:var(--muted);margin:6px 0 26px}
+  .score-line b{color:var(--ink);font-size:1.1rem}
+  .review{text-align:left;background:var(--white);border:1px solid var(--line);border-radius:6px;margin-bottom:22px;overflow:hidden}
+  .review h3{font-family:var(--display);font-size:.95rem;padding:13px 16px;background:var(--amber-soft);border-bottom:1px solid var(--line)}
+  .review .miss-row{display:flex;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:.88rem}
+  .review .miss-row:last-child{border-bottom:none}
+  .review .miss-row .sch{font-family:var(--mono);color:var(--teal);font-weight:500;white-space:nowrap}
+  .perfect{color:var(--good);font-weight:500;padding:16px;text-align:center}
+  footer{margin-top:auto;padding-top:24px;font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="rx-tag">DEA Schedule III · Memory Game</span>
+
+  <section class="screen" id="start">
+    <h1>Schedule III:<br>Yes or No?</h1>
+    <p class="lede">A drug flashes up — is it Schedule III, or not? Master the "in-between" schedule and the drugs that quietly switched schedules over the years.</p>
+
+    <div class="profile">
+      <div class="hd"><span class="rn">III</span> The Schedule III profile</div>
+      <div class="bd">
+        <div class="row"><b>The idea:</b> "in-between" — less abuse potential than II, more than IV</div>
+        <div class="row"><b>Codeine combos:</b> Tylenol with codeine #3 &amp; #4, aspirin with codeine</div>
+        <div class="row"><b>Body &amp; treatment:</b> anabolic steroids, testosterone, buprenorphine (Suboxone), ketamine</div>
+        <div class="row"><b>Also:</b> dronabinol (Marinol), diet stimulants (benzphetamine, phendimetrazine), Fiorinal</div>
+        <div class="row"><b>Rule to know:</b> III–V CAN be refilled — up to 5 times in 6 months</div>
+      </div>
+    </div>
+    <p class="mnemonic"><b>Best memory hook:</b> Tylenol <b>#3</b> → Schedule <b>III</b> (the numbers match!).<br><b>Schedule III</b> = <b>S</b>teroids · <b>S</b>uboxone · <b>K</b>etamine · codeine <b>C</b>ombos.<br><b>Trap:</b> Vicodin (hydrocodone combo) used to be III — it's now Schedule II.</p>
+
+    <button class="btn-primary" id="startBtn">Start · 15 rounds</button>
+    <footer>℞ Study the profile now, then trust your gut</footer>
+  </section>
+
+  <section class="screen hidden" id="play">
+    <div class="hud">
+      <div class="stat"><b id="score">0</b>correct</div>
+      <div class="stat streak"><b id="streak">0</b>streak</div>
+      <div class="stat"><b id="round">1</b>of 15</div>
+    </div>
+    <div class="dots" id="dots"></div>
+
+    <div class="prompt">
+      <div class="ask">Is this Schedule III?</div>
+      <div class="drug" id="drugName"></div>
+      <span class="brand" id="drugBrand"></span>
+    </div>
+
+    <div class="yn" id="yn">
+      <button class="yes" data-a="1">✓ Schedule III<small>press Y or ←</small></button>
+      <button class="no" data-a="0">✗ Not Schedule III<small>press N or →</small></button>
+    </div>
+
+    <div class="feedback" id="feedback">
+      <div class="verdict" id="verdict"></div>
+      <div class="why" id="why"></div>
+      <button class="next-btn" id="nextBtn">Next →</button>
+    </div>
+  </section>
+
+  <section class="screen hidden" id="end">
+    <div class="result">
+      <div class="grade" id="grade">A</div>
+      <div class="score-line"><b id="finalScore">0</b> / 15 · <b id="finalAcc">0%</b> · best streak <b id="finalStreak">0</b></div>
+    </div>
+    <div class="review" id="review"></div>
+    <button class="btn-primary" id="againBtn">Play again</button>
+    <footer>℞ Replay until the switchers stop fooling you</footer>
+  </section>
+</div>
+
+<script>
+// isIII = true means Schedule III. sch = actual schedule label. why = memory hook.
+const POOL = [
+  // ---- Schedule III ----
+  {n:"Tylenol with codeine", b:"#3", isIII:true, sch:"III", why:"Codeine COMBO product → Schedule III. Remember: #3 → III."},
+  {n:"Codeine / acetaminophen", b:"#4", isIII:true, sch:"III", why:"Codeine combo → Schedule III."},
+  {n:"Aspirin with codeine", b:"Empirin", isIII:true, sch:"III", why:"Codeine combo → Schedule III."},
+  {n:"Buprenorphine", b:"Suboxone", isIII:true, sch:"III", why:"Opioid-dependence treatment → Schedule III (unlike methadone, which is II)."},
+  {n:"Ketamine", b:"", isIII:true, sch:"III", why:"Anesthetic → Schedule III."},
+  {n:"Anabolic steroids", b:"", isIII:true, sch:"III", why:"Body-building drugs → Schedule III."},
+  {n:"Testosterone", b:"", isIII:true, sch:"III", why:"Anabolic steroid → Schedule III."},
+  {n:"Oxandrolone", b:"Anavar", isIII:true, sch:"III", why:"Anabolic steroid → Schedule III."},
+  {n:"Nandrolone", b:"", isIII:true, sch:"III", why:"Anabolic steroid → Schedule III."},
+  {n:"Dronabinol", b:"Marinol", isIII:true, sch:"III", why:"Synthetic THC capsule (Marinol) → Schedule III."},
+  {n:"Benzphetamine", b:"Didrex", isIII:true, sch:"III", why:"Diet/anorectic stimulant → Schedule III."},
+  {n:"Phendimetrazine", b:"", isIII:true, sch:"III", why:"Diet/anorectic stimulant → Schedule III."},
+  {n:"Fiorinal", b:"butalbital/aspirin/caffeine", isIII:true, sch:"III", why:"Butalbital combo → Schedule III."},
+  // ---- NOT Schedule III ----
+  {n:"Heroin", b:"", isIII:false, sch:"I", why:"No accepted medical use → Schedule I."},
+  {n:"LSD", b:"", isIII:false, sch:"I", why:"No medical use → Schedule I."},
+  {n:"Marijuana", b:"federal", isIII:false, sch:"I", why:"Still Schedule I federally."},
+  {n:"Oxycodone", b:"OxyContin", isIII:false, sch:"II", why:"Strong single-entity opioid → Schedule II."},
+  {n:"Vicodin", b:"hydrocodone/APAP", isIII:false, sch:"II", why:"Trap! Was Schedule III — moved to II in 2014."},
+  {n:"Morphine", b:"", isIII:false, sch:"II", why:"Strong opioid → Schedule II."},
+  {n:"Fentanyl", b:"", isIII:false, sch:"II", why:"Very potent opioid → Schedule II."},
+  {n:"Methadone", b:"", isIII:false, sch:"II", why:"Opioid → Schedule II (unlike buprenorphine, which is III)."},
+  {n:"Amphetamine", b:"Adderall", isIII:false, sch:"II", why:"Stimulant → Schedule II."},
+  {n:"Methylphenidate", b:"Ritalin", isIII:false, sch:"II", why:"Stimulant → Schedule II."},
+  {n:"Cocaine", b:"", isIII:false, sch:"II", why:"Topical anesthetic use → Schedule II."},
+  {n:"Alprazolam", b:"Xanax", isIII:false, sch:"IV", why:"Benzodiazepine → Schedule IV."},
+  {n:"Diazepam", b:"Valium", isIII:false, sch:"IV", why:"Benzo → Schedule IV."},
+  {n:"Tramadol", b:"", isIII:false, sch:"IV", why:"Opioid-like pain med → Schedule IV."},
+  {n:"Zolpidem", b:"Ambien", isIII:false, sch:"IV", why:"Sleep aid → Schedule IV."},
+  {n:"Phenobarbital", b:"", isIII:false, sch:"IV", why:"This barbiturate is Schedule IV."},
+  {n:"Carisoprodol", b:"Soma", isIII:false, sch:"IV", why:"Muscle relaxant → Schedule IV."},
+  {n:"Modafinil", b:"Provigil", isIII:false, sch:"IV", why:"Wakefulness drug → Schedule IV."},
+  {n:"Pregabalin", b:"Lyrica", isIII:false, sch:"V", why:"Nerve-pain drug → Schedule V."},
+  {n:"Codeine cough syrup", b:"", isIII:false, sch:"V", why:"Limited-codeine cough prep → Schedule V (a codeine PILL combo is III)."},
+  {n:"Lomotil", b:"", isIII:false, sch:"V", why:"Anti-diarrheal → Schedule V."},
+];
+const ROUNDS=15;
+let queue=[], idx=0, score=0, streak=0, best=0, misses=[];
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function start(){
+  queue=shuffle([...POOL]).slice(0,ROUNDS);
+  idx=0;score=0;streak=0;best=0;misses=[];
+  $('start').classList.add('hidden');$('end').classList.add('hidden');$('play').classList.remove('hidden');
+  const d=$('dots');d.innerHTML='';
+  for(let i=0;i<ROUNDS;i++){const s=document.createElement('div');s.className='dot';s.id='dot'+i;d.appendChild(s);}
+  render();
+}
+function render(){
+  const drug=queue[idx];
+  $('score').textContent=score;$('streak').textContent=streak;$('round').textContent=idx+1;
+  $('drugName').textContent=drug.n;
+  $('drugBrand').textContent=drug.b?('— '+drug.b):'';
+  const yn=$('yn');yn.classList.remove('locked');
+  Array.from(yn.children).forEach(b=>b.classList.remove('pick-right','pick-wrong'));
+  $('feedback').className='feedback';
+}
+function answer(saidIII){
+  const drug=queue[idx];const yn=$('yn');yn.classList.add('locked');
+  const right = (saidIII===1)===drug.isIII;
+  const btns=Array.from(yn.children);
+  const chosen = saidIII===1?btns[0]:btns[1];
+  chosen.classList.add(right?'pick-right':'pick-wrong');
+  if(!right){ const correctBtn = drug.isIII?btns[0]:btns[1]; correctBtn.classList.add('pick-right'); }
+  const dot=$('dot'+idx);
+  if(right){score++;streak++;best=Math.max(best,streak);dot.classList.add('done');
+    $('feedback').className='feedback show right';
+    $('verdict').textContent= streak>=3?('Correct — '+streak+' in a row!'):'Correct!';
+  }else{streak=0;misses.push(drug);dot.classList.add('miss');
+    $('feedback').className='feedback show nope';
+    $('verdict').textContent= drug.isIII?'It IS Schedule III':'Not Schedule III — it\u2019s Schedule '+drug.sch;
+  }
+  $('why').innerHTML='<b>'+drug.n+'</b> — '+drug.why;
+  $('score').textContent=score;$('streak').textContent=streak;
+  $('nextBtn').textContent=(idx+1>=ROUNDS)?'See results →':'Next →';
+  $('nextBtn').focus();
+}
+function next(){idx++;if(idx>=ROUNDS){end();return;}render();}
+function end(){
+  $('play').classList.add('hidden');$('end').classList.remove('hidden');
+  const acc=Math.round(score/ROUNDS*100);
+  let g='A+';if(acc<100)g='A';if(acc<90)g='B';if(acc<80)g='C';if(acc<70)g='D';if(acc<60)g='F';
+  $('grade').textContent=g;$('finalScore').textContent=score;$('finalAcc').textContent=acc+'%';$('finalStreak').textContent=best;
+  const rev=$('review');
+  if(misses.length===0){rev.innerHTML='<div class="perfect">Perfect run — Schedule III is locked in. ℞</div>';}
+  else{
+    let html='<h3>Review these ('+misses.length+')</h3>';const seen=new Set();
+    misses.forEach(m=>{if(seen.has(m.n))return;seen.add(m.n);
+      html+='<div class="miss-row"><span>'+m.n+(m.b?' <span style="color:var(--muted)">('+m.b+')</span>':'')+'</span><span class="sch">Schedule '+m.sch+'</span></div>';});
+    rev.innerHTML=html;
+  }
+}
+$('startBtn').addEventListener('click',start);
+$('againBtn').addEventListener('click',start);
+$('nextBtn').addEventListener('click',next);
+Array.from($('yn').children).forEach(b=>b.addEventListener('click',()=>answer(Number(b.dataset.a))));
+document.addEventListener('keydown',e=>{
+  if($('play').classList.contains('hidden'))return;
+  const locked=$('yn').classList.contains('locked');
+  if(!locked){
+    if(e.key==='y'||e.key==='Y'||e.key==='ArrowLeft'){e.preventDefault();answer(1);}
+    if(e.key==='n'||e.key==='N'||e.key==='ArrowRight'){e.preventDefault();answer(0);}
+  }else if(e.key==='Enter'||e.key===' '){e.preventDefault();next();}
+});
+</script>
+</body>
+</html>
